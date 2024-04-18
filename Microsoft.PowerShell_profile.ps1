@@ -75,14 +75,21 @@ Set-Alias -Name "br" -Value gitCheckoutFunction
 
 function gitRemoveCached {
 
-    # Find all .gitignore files in the repository
-    $gitignore_files = git ls-files --ignored --exclude-standard -o
+    # Find all ignored files in the repository
+    $ignored_files = git ls-files --ignored --exclude-standard -c
 
-    # Loop through each .gitignore file
-    foreach ($file in $gitignore_files) {
-        # If the file is a .gitignore file, remove it from the cache
-        if ($file -like "*.gitignore") {
-            git rm --cached $file
+    Write-Host "Found the following ignored files:"
+    Write-Host $ignored_files
+
+    # Loop through each ignored file
+    foreach ($file in $ignored_files) {
+        Write-Host "Removing $file from cache..."
+        git rm --cached $file
+        if ($?) {
+            Write-Host "$file removed from cache successfully."
+        }
+        else {
+            Write-Host "Failed to remove $file from cache."
         }
     }
 }
