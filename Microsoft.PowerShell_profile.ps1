@@ -73,6 +73,23 @@ function gitCheckoutFunction {
 }
 Set-Alias -Name "br" -Value gitCheckoutFunction
 
+function gitRemoveCached {
+
+    # Find all .gitignore files in the repository
+    $gitignore_files = git ls-files --ignored --exclude-standard -o
+
+    # Loop through each .gitignore file
+    foreach ($file in $gitignore_files) {
+        # If the file is a .gitignore file, remove it from the cache
+        if ($file -like "*.gitignore") {
+            git rm --cached $file
+        }
+    }
+}
+
+Set-Alias -Name "rmc" -Value gitRemoveCached
+
+
 # Function to create a GitHub repository upstream using the GitHub CLI
 # Initializes a new git repository in the current directory and sets the remote origin to the newly created GitHub repository
 # Full command: gh repo create
