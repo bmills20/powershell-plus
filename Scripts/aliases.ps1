@@ -68,3 +68,4 @@ Set-Alias -Name "help-shell" -Value ghCopilotSuggestShellFunction
 Set-Alias -Name "sh" -Value ghCopilotSuggestShellFunction
 Set-Alias -Name "rec" -Value ghCopilotSuggestShellFunction
 Set-Alias -Name "suggest" -Value ghCopilotSuggestShellFunction
+Set-Alias -Name "ghcs" -Value ghCopilotSuggestShellFunction
