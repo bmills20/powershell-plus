@@ -18,25 +18,29 @@ if (Test-Path "$env:NVM_DIR\nvm-bash-completion.ps1") {
 }
 
 # Initialize zoxide
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+$zoxidePath = (Get-Command zoxide).Source
+
+if (Test-Path $zoxidePath) {
+    $acl = Get-Acl $zoxidePath
+    $permissions = $acl.Access | Where-Object { $_.IdentityReference.Value -eq "$env:USERDOMAIN\$env:USERNAME" }
+    
+    if ($permissions.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::Read -and
+        $permissions.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::ExecuteFile) {
+        Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    }
+    else {
+        Write-Output "Zoxide does not have the necessary permissions to run."
+    }
+}
+else {
+    Write-Output "Zoxide is not accessible."
+}
+
 
 # Import miniconda/conda/mamba configuration
 if (Test-Path "$PSScriptRoot\Scripts\conda_init.ps1") {
-    Write-Host "conda_init.ps1 found, importing."
     . "$PSScriptRoot\Scripts\conda_init.ps1"
 }
-else {
-    Write-Host "conda_init.ps1 not found, skipping import."
-}
-
-# Initialize oh-my-posh
-#if (Test-Path "$PSScriptRoot\Scripts\catppuccin_frappe.omp.json") {
-#    Write-Host "catppuccin_frappe.omp.json found, initializing oh-my-posh."
-#    oh-my-posh --init --shell pwsh --config "$PSScriptRoot\Scripts\catppuccin_frappe.omp.json" | Invoke-Expression
-#}
-#else {
-#    Write-Host "catppuccin_frappe.omp.json not found, skipping oh-my-posh initialization."
-#}
 
 Import-Module -Name PSReadLine
 Import-Module Az.Tools.Predictor
@@ -45,27 +49,6 @@ Set-PSReadLineKeyHandler -Chord Shift+Tab -Function TabCompleteNext
 Set-PSReadLineKeyHandler -Chord Tab -Function ForwardChar
 Set-PSReadLineOption -PredictionSource HistoryAndPlugin
 Set-PSReadLineOption -PredictionViewStyle ListView
-
-# Enable Starship (https://starship.rs/)
-# * If using starship, zoxide must be initialized after starship
-
-# Import miniconda/conda/mamba configuration
-if (Test-Path "$PSScriptRoot\Scripts\init_starship.ps1") {
-    Write-Host "init_starship.ps1 found, importing."
-    . "$PSScriptRoot\Scripts\init_starship.ps1"
-}
-else {
-    Write-Host "init_starship.ps1 not found, skipping import."
-}
-
-if (Test-Path "$PSScriptRoot\Scripts\starship_suggestions.ps1") {
-    . "$PSScriptRoot\Scripts\starship_suggestions.ps1"
-    Write-Host "starship_suggestions.ps1 found, importing."
-}
-else {
-    Write-Host "starship_suggestions.ps1 not found, skipping import."
-
-}
 
 # Github copilot alias
 $GH_COPILOT_PROFILE = Join-Path (Split-Path $PROFILE) -ChildPath "Scripts\gh-copilot.ps1"
@@ -86,10 +69,6 @@ if (-not (Select-String -Path $PROFILE -Pattern ([regex]::Escape($GH_COPILOT_IMP
 # * If using starship, zoxide must be initialized after starship
 if (Test-Path "$PSScriptRoot\Scripts\zoxide_init.ps1") {
     . "$PSScriptRoot\Scripts\zoxide_init.ps1"
-    Write-Host "zoxide_init.ps1 found, importing."
-}
-else {
-    Write-Host "zoxide_init.ps1 not found, skipping import."
 }
 
 # Import the Chocolatey Profile that contains the necessary code to enable
@@ -101,6 +80,9 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
-. "C:\Users\braxt\OneDrive\Documents\PowerShell\Scripts\gh-copilot.ps1"
+. "$PSScriptRoot\gh-copilot.ps1"
 
 . "C:\Users\braxt\.config\path.ps1"
+. "C:\Users\braxt\OneDrive\Documents\PowerShell\Scripts\gh-copilot.ps1"
+Import-Module posh-git
+oh-my-posh init pwsh --config 'C:\Users\braxt\OneDrive\Documents\PowerShell\Scripts\pwsh10k.omp.json' | Invoke-Expression

@@ -1,0 +1,75 @@
+$schema: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+version: 2
+palette:
+  os: '#ACB0BE'
+  closer: 'p:os'
+  pink: '#F4B8E4'
+  lavender: '#BABBF1'
+  blue: '#8CAAEE'
+
+blocks:
+  - alignment: left
+    type: prompt
+    segments:
+      - type: path
+        style: plain
+        foreground: 'p:pink'
+        properties:
+          style: letter
+        template: '[{{ .Drive }}:] '
+        # Display the current drive letter in square brackets
+
+      - type: node
+        style: plain
+        foreground: 'p:blue'
+        template: "[\\ue718 {{ .Full }}] "
+        # Display the Node.js logo and the current Node.js version in square brackets
+
+      - type: npm
+        style: plain
+        foreground: 'p:blue'
+        template: "[\\ue71e {{ .Full }}] "
+        # Display the pnpm logo and the current pnpm version in square brackets
+
+      - type: path
+        style: plain
+        foreground: 'p:lavender'
+        properties:
+          style: folder
+        template: '{{ .Path }} '
+        # Display the current directory
+
+      - type: git
+        style: plain
+        foreground: 'p:lavender'
+        properties:
+          branch_icon: '$'
+          fetch_status: true
+          fetch_upstream_icon: true
+          status_colors_enabled: true
+          status_separator_icon: ' |'
+          local_working_icon: '!'
+          local_staged_icon: ''
+          display_stash_count: true
+          display_upstream_icon: true
+        template: >-
+          {{- if .Working.Changed }} {{ .Working.String }}{{ end }}
+
+      - type: exit
+        style: plain
+        foreground: 'p:lavender'
+        template: 'on '
+
+      - type: text
+        style: plain
+        foreground: 'p:lavender'
+        template: '{{ .HEAD }} '
+        # Display the current git branch
+
+      - type: text
+        style: plain
+        foreground: 'p:closer'
+        template: "\\u276f"
+        # Display the prompt symbol (›)
+
+final_space: true

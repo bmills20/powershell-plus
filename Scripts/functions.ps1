@@ -207,3 +207,14 @@ function Help {
 
     Write-Host "" # Empty line for spacing
 }
+
+function Print-Clipboard-History {
+    $null = [Windows.ApplicationModel.DataTransfer.Clipboard, Windows.ApplicationModel.DataTransfer, ContentType=WindowsRuntime]
+$op = [Windows.ApplicationModel.DataTransfer.Clipboard]::GetHistoryItemsAsync()
+
+$result = Await ($op) `
+    ([Windows.ApplicationModel.DataTransfer.ClipboardHistoryItemsResult])
+
+$textops = $result.Items.Content.GetTextAsync()
+for ($i = 0; $i -lt $textops.Count; $i++){ Await($textops[$i]) ([String]) }
+}
